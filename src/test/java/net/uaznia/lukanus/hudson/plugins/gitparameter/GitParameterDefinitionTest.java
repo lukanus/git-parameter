@@ -54,7 +54,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
     public void testCreateValue_StaplerRequest() {
         System.out.println("createValue");
               
-        GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch");
+        GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch", "*");
        
         StaplerRequest request = mock(StaplerRequest.class);
         ParameterValue result = instance.createValue(request);
@@ -62,6 +62,30 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
         assertEquals(result, new GitParameterValue("name", "defaultValue"));
     }
 
+    @Test
+    public void testConstructorInitializesTagFilterToAsteriskWhenNull() {
+    	GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch",null);
+    	assertEquals("*", instance.getTagFilter());
+    }
+    
+    @Test
+    public void testConstructorInitializesTagFilterToAsteriskWhenWhitespace() {
+    	GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch","  ");
+    	assertEquals("*", instance.getTagFilter());
+    }
+    
+    @Test
+    public void testConstructorInitializesTagFilterToAsteriskWhenEmpty() {
+    	GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch","");
+    	assertEquals("*", instance.getTagFilter());
+    }
+    
+    @Test
+    public void testConstructorInitializesTagToGivenValueWhenNotNullOrWhitespace() {
+    	GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch","foobar");
+    	assertEquals("foobar", instance.getTagFilter());
+    }
+    
     /**
      * Test of createValue method, of class GitParameterDefinition.
      */
@@ -77,7 +101,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
         JSONObject jO = JSONObject.fromObject(jsonR);
         
         
-        GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch");
+        GitParameterDefinition instance = new GitParameterDefinition("name","PT_REVISION","defaultValue","description","branch","*");
        
         ParameterValue result = instance.createValue(request,jO);
         
@@ -103,7 +127,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
     public void testGetType() {
         System.out.println("Test of getType method.");
         String expResult = "PT_REVISION";        
-        GitParameterDefinition instance = new GitParameterDefinition("name",expResult,"defaultValue","description","branch");
+        GitParameterDefinition instance = new GitParameterDefinition("name",expResult,"defaultValue","description","branch","*");
         String result = instance.getType();
         assertEquals(expResult, result);
         
@@ -121,7 +145,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
     public void testSetType() {
         System.out.println("Test of setType method.");
         String expResult = "PT_REVISION";        
-        GitParameterDefinition instance = new GitParameterDefinition("name","asdf","defaultValue","description","branch");
+        GitParameterDefinition instance = new GitParameterDefinition("name","asdf","defaultValue","description","branch","*");
         
         instance.setType(expResult);        
         String result = instance.getType();        
@@ -136,7 +160,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
         System.out.println("getDefaultValue");
         String expResult = "defaultValue";
         
-        GitParameterDefinition instance = new GitParameterDefinition("name","asdf", expResult,"description","branch");       
+        GitParameterDefinition instance = new GitParameterDefinition("name","asdf", expResult,"description","branch","*");       
         String result = instance.getDefaultValue();
         assertEquals(expResult, result);
     }
@@ -149,7 +173,7 @@ public class GitParameterDefinitionTest extends HudsonTestCase  {
         System.out.println("getDefaultValue");
         String expResult = "defaultValue";
         
-        GitParameterDefinition instance = new GitParameterDefinition("name","asdf", "other" ,"description","branch");       
+        GitParameterDefinition instance = new GitParameterDefinition("name","asdf", "other" ,"description","branch","*");       
         instance.setDefaultValue(expResult);
         
         String result = instance.getDefaultValue();

@@ -58,6 +58,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
               
 	private String type;
         private String branch;
+        private String tagFilter;
         
         private String errorMessage;        
 	private String defaultValue;        
@@ -68,7 +69,8 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 	@DataBoundConstructor
 	public GitParameterDefinition(String name,
                 String type, String defaultValue,
-                String description, String branch
+                String description, String branch,
+                String tagFilter
         ) {
 		super(name, description);
 		this.type = type;
@@ -76,6 +78,12 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 this.branch = branch;
                 
                 this.uuid = UUID.randomUUID();               
+
+    if (isNullOrWhitespace(tagFilter)) {
+      this.tagFilter = "*";
+    } else {
+      this.tagFilter = tagFilter;
+    }
 	}
         
 
@@ -146,6 +154,14 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 this.branch = nameOfBranch;
         }
 
+    public String getTagFilter() {
+    	return this.tagFilter;
+    }
+    
+    public void setTagFilter(String tagFilter) {
+    	this.tagFilter = tagFilter;
+    }
+        
 	public String getDefaultValue() {
 		return defaultValue;
 	}
@@ -272,7 +288,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                             tagMap = new HashMap<String, String>();
                              
                             //Set<String> tagNameList = newgit.getTagNames("*");
-                            for(String tagName: newgit.getTagNames("*")) {
+                            for(String tagName: newgit.getTagNames(this.tagFilter)) {
                                 tagMap.put(tagName, tagName);
                             }
                         }                                
@@ -301,5 +317,17 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
             return tagMap;
         }
         
+        private static boolean isNullOrWhitespace(String s) {
+            return s == null || isWhitespace(s);
 
+        }
+        private static boolean isWhitespace(String s) {
+            int length = s.length();
+            for (int i = 0; i < length; i++) {
+                if (!Character.isWhitespace(s.charAt(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
 }
