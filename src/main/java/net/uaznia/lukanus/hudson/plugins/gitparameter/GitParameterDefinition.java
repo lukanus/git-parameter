@@ -1,42 +1,40 @@
 package net.uaznia.lukanus.hudson.plugins.gitparameter;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Date;
-import java.util.UUID;
-import java.text.SimpleDateFormat;
-
-
-
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.ParameterValue;
+import hudson.model.TaskListener;
+import hudson.model.AbstractProject;
+import hudson.model.Hudson;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
-import hudson.model.Hudson;
-import hudson.model.TaskListener;
+import hudson.plugins.git.GitAPI;
+import hudson.plugins.git.IGitAPI;
+import hudson.plugins.git.Revision;
+import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-
-
-
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.lib.ObjectId;
-
-import hudson.plugins.git.GitSCM;
-import hudson.plugins.git.IGitAPI;
-import hudson.plugins.git.GitAPI;
-import hudson.plugins.git.Revision;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 
 public class GitParameterDefinition extends ParameterDefinition implements Comparable<GitParameterDefinition> {
@@ -59,6 +57,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 	private String type;
         private String branch;
         private String tagFilter;
+        private String tagPartSplitter;
         
         private String errorMessage;        
 	private String defaultValue;        
@@ -70,7 +69,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 	public GitParameterDefinition(String name,
                 String type, String defaultValue,
                 String description, String branch,
-                String tagFilter
+                String tagFilter, String tagPartSplitter
         ) {
 		super(name, description);
 		this.type = type;
@@ -79,11 +78,17 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 
                 this.uuid = UUID.randomUUID();               
 
-    if (isNullOrWhitespace(tagFilter)) {
-      this.tagFilter = "*";
-    } else {
-      this.tagFilter = tagFilter;
-    }
+        if (isNullOrWhitespace(tagFilter)) {
+    		this.tagFilter = "*";
+    	} else {
+    		this.tagFilter = tagFilter;
+    	}
+        
+        if (isNullOrWhitespace(tagPartSplitter)) {
+        	this.tagPartSplitter = null;
+        } else {
+        	this.tagPartSplitter = tagPartSplitter;
+        }
 	}
         
 
@@ -154,6 +159,14 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 this.branch = nameOfBranch;
         }
 
+    public String getTagPartSplitter() {
+    	return this.tagPartSplitter;
+    }
+    
+    public void setTagPartSplitter(String tagPartSplitter) {
+    	this.tagPartSplitter = tagPartSplitter;
+    }
+       
     public String getTagFilter() {
     	return this.tagFilter;
     }
@@ -288,7 +301,9 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                             tagMap = new HashMap<String, String>();
                              
                             //Set<String> tagNameList = newgit.getTagNames("*");
-                            for(String tagName: newgit.getTagNames(this.tagFilter)) {
+                            Set<String> tagSet = newgit.getTagNames(tagFilter);
+                            ArrayList<String> sortedTagNames = sortTagNames(tagSet, this.tagPartSplitter);
+                            for(String tagName: sortedTagNames) {
                                 tagMap.put(tagName, tagName);
                             }
                         }                                
@@ -299,6 +314,19 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 
 	}
         
+	public ArrayList<String> sortTagNames(Set<String> tagSet, String componentSplitter) {
+		
+		ArrayList<String> tags = new ArrayList<String>(tagSet);
+		
+		if (componentSplitter == null) {
+			Collections.sort(tags);
+		} else {
+			Collections.sort(tags, new ComponentStringComparer(componentSplitter));
+		}
+		
+		return tags;
+	}
+	
 	public String getErrorMessage() {
             return errorMessage;
         }
@@ -329,5 +357,29 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 }
             }
             return true;
+        }
+
+        static class ComponentStringComparer implements Comparator<String> {
+        	
+        	private String splitRegex;
+        	
+        	public ComponentStringComparer(String splitRegex) {
+        		this.splitRegex = splitRegex;
+        	}
+        	
+        	public int compare(String a, String b) {
+				String[] aParts = a.split(this.splitRegex);
+				String[] bParts = b.split(this.splitRegex);
+				
+				for (int i = 0; i < aParts.length && i < bParts.length; i++) {
+					int difference = aParts[i].compareTo(bParts[i]);
+					if (difference != 0)
+						return difference;
+				}
+				
+				return new Integer(aParts.length).compareTo(new Integer(bParts.length));
+			}
+        	
+
         }
 }

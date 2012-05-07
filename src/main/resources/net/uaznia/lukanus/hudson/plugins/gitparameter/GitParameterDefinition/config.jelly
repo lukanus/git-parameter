@@ -33,6 +33,10 @@
   <f:entry title="Tag filter" field="tagFilter">
     <f:textbox />
   </f:entry>
+  
+  <f:entry title="Tag part splitter" field="tagPartSplitter">
+    <f:textbox />
+  </f:entry>
 
   <f:entry title="Default Value" field="defaultValue">
     <f:textbox />
