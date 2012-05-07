@@ -303,8 +303,10 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                             //Set<String> tagNameList = newgit.getTagNames("*");
                             Set<String> tagSet = newgit.getTagNames(tagFilter);
                             ArrayList<String> sortedTagNames = sortTagNames(tagSet, this.tagPartSplitter);
+                            Integer index = 0;
                             for(String tagName: sortedTagNames) {
-                                tagMap.put(tagName, tagName);
+                                tagMap.put(index.toString(), tagName);
+                                index += 1;
                             }
                         }                                
                             
