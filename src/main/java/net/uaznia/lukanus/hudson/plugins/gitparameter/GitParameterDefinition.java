@@ -15,8 +15,10 @@ import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -305,7 +307,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                             ArrayList<String> sortedTagNames = sortTagNames(tagSet, this.tagPartSplitter);
                             Integer index = 0;
                             for(String tagName: sortedTagNames) {
-                                tagMap.put(index.toString(), tagName);
+                                tagMap.put(tagName, intToStringWithLeadingZeros(index, 5) + ": " + tagName);
                                 index += 1;
                             }
                         }                                
@@ -316,6 +318,18 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                 
 	}
         
+	private String intToStringWithLeadingZeros(int number, int digits) {
+		assert digits > 0 : "Invalid number of digits";
+
+	    // create variable length array of zeros
+	    char[] zeros = new char[digits];
+	    Arrays.fill(zeros, '0');
+	    // format number as String
+	    DecimalFormat df = new DecimalFormat(String.valueOf(zeros));
+
+	    return df.format(number);
+	}
+	
 	public ArrayList<String> sortTagNames(Set<String> tagSet, String componentSplitter) {
 		
 		ArrayList<String> tags = new ArrayList<String>(tagSet);
