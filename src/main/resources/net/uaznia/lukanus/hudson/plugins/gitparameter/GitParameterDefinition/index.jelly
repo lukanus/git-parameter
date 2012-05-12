@@ -9,7 +9,7 @@
             <j:choose>
             	<j:when test="${it.type eq 'PT_TAG'}">
             	    <input type="hidden" name="name" value="${it.name}" />
-                    <select name="value" size="5" width="200px">
+                    <select name="value" size="10" width="300px">
             		<j:forEach var="val" items="${it.tagMap}" >
                             <j:choose>
                                 <option value="${val.key}">${val.value}</option>
