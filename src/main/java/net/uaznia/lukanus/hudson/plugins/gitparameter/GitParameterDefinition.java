@@ -57,7 +57,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 	private String type;
 	private String branch;
 	private String tagFilter;
-	private boolean useSmartNumberSort;
+	private SortMode sortMode;
 
 	private String errorMessage;        
 	private String defaultValue;        
@@ -69,21 +69,20 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 	public GitParameterDefinition(String name,
 			String type, String defaultValue,
 			String description, String branch,
-			String tagFilter, boolean useSmartNumberSort
+			String tagFilter, SortMode sortMode
 			) {
 		super(name, description);
 		this.type = type;
 		this.defaultValue = defaultValue;
 		this.branch = branch;
-		this.useSmartNumberSort = useSmartNumberSort;
-		this.uuid = UUID.randomUUID();               
+		this.uuid = UUID.randomUUID();    
+		this.sortMode = sortMode;
 
 		if (isNullOrWhitespace(tagFilter)) {
 			this.tagFilter = "*";
 		} else {
 			this.tagFilter = tagFilter;
 		}
-
 	}
 
 
@@ -154,12 +153,12 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 		this.branch = nameOfBranch;
 	}
 
-	public boolean getUseSmartNumberSort() {
-		return this.useSmartNumberSort;
+	public SortMode getSortMode() {
+		return this.sortMode;
 	}
-
-	public void setUseSmartNumberSort(boolean useSmartNumberSort) {
-		this.useSmartNumberSort = useSmartNumberSort;
+	
+	public void setSortMode(SortMode sortMode) {
+		this.sortMode = sortMode;
 	}
 
 	public String getTagFilter() {
@@ -298,11 +297,18 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 						tagMap = new LinkedHashMap<String, String>();
 
 						Set<String> tagSet = newgit.getTagNames(tagFilter);
-						ArrayList<String> sortedTagNames = sortTagNames(tagSet);
-						Integer index = 0;
-						for(String tagName: sortedTagNames) {
+						ArrayList<String> orderedTagNames;
+						
+						if (this.getSortMode().getIsSorting()) {
+							orderedTagNames = sortTagNames(tagSet);
+							if (this.getSortMode().getIsDescending())
+								Collections.reverse(orderedTagNames);
+						} else {
+							orderedTagNames = new ArrayList<String>(tagSet);
+						}
+						
+						for(String tagName: orderedTagNames) {
 							tagMap.put(tagName, tagName);
-							index += 1;
 						}
 					}                                
 
@@ -316,7 +322,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 
 		ArrayList<String> tags = new ArrayList<String>(tagSet);
 
-		if (!this.getUseSmartNumberSort()) {
+		if (!this.getSortMode().getIsUsingSmartSort()) {
 			Collections.sort(tags);
 		} else {
 			Collections.sort(tags, new SmartNumberStringComparer());
@@ -357,6 +363,26 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 		return true;
 	}
 
+	enum SortMode {
+		NONE,  
+		ASCENDING_SMART, 
+		DESCENDING_SMART,
+		ASCENDING, 
+		DESCENDING;
+
+		public boolean getIsUsingSmartSort() {
+			return this == SortMode.ASCENDING_SMART || this == SortMode.DESCENDING_SMART;
+		}
+		
+		public boolean getIsDescending() {
+			return this == SortMode.DESCENDING || this == SortMode.DESCENDING_SMART;
+		}
+		
+		public boolean getIsSorting() {
+			return this != SortMode.NONE;
+		}
+	}
+	
 	/**
 	 * Compares strings but treats a sequence of digits as a single character.
 	 */

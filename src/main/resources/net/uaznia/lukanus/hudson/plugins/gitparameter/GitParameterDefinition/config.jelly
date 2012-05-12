@@ -34,8 +34,8 @@
     <f:textbox />
   </f:entry>
   
-  <f:entry title="Smart number sort" field="useSmartNumberSort">
-    <f:checkbox />
+  <f:entry name="sortMode" title="Tag sort mode" field="sortMode">
+  	<f:enum>${it}</f:enum>
   </f:entry>
 
   <f:entry title="Default Value" field="defaultValue">
