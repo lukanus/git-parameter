@@ -15,14 +15,12 @@ import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -262,7 +260,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 					newgit.fetch();
 
 					if(type.equalsIgnoreCase(PARAMETER_TYPE_REVISION)) {
-						revisionMap = new HashMap<String, String>();
+						revisionMap = new LinkedHashMap<String, String>();
 
 
 						List<ObjectId> oid;   
@@ -294,15 +292,16 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 							}
 							revisionMap.put(r.getSha1String(), r.getSha1String() + " " + author + " " + goodDate);
 						}
-					} else if(type.equalsIgnoreCase(PARAMETER_TYPE_TAG)) {         
-						tagMap = new HashMap<String, String>();
+					} else if(type.equalsIgnoreCase(PARAMETER_TYPE_TAG)) {   
+						
+						// use a LinkedHashMap so that keys are ordered as inserted
+						tagMap = new LinkedHashMap<String, String>();
 
-						//Set<String> tagNameList = newgit.getTagNames("*");
 						Set<String> tagSet = newgit.getTagNames(tagFilter);
-						ArrayList<String> sortedTagNames = sortTagNames(tagSet, this.tagPartSplitter);
+						ArrayList<String> sortedTagNames = sortTagNames(tagSet);
 						Integer index = 0;
 						for(String tagName: sortedTagNames) {
-							tagMap.put(tagName, intToStringWithLeadingZeros(index, 5) + ": " + tagName);
+							tagMap.put(tagName, tagName);
 							index += 1;
 						}
 					}                                
@@ -311,18 +310,6 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
 			}
 			//     }
 
-	}
-
-	private String intToStringWithLeadingZeros(int number, int digits) {
-		assert digits > 0 : "Invalid number of digits";
-
-		// create variable length array of zeros
-		char[] zeros = new char[digits];
-		Arrays.fill(zeros, '0');
-		// format number as String
-		DecimalFormat df = new DecimalFormat(String.valueOf(zeros));
-
-		return df.format(number);
 	}
 
 	public ArrayList<String> sortTagNames(Set<String> tagSet) {
