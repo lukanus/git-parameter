@@ -230,7 +230,7 @@ public class GitParameterDefinition extends ParameterDefinition implements
 				// }
 
 				try {
-					newgit.fetch();
+					newgit.fetch(repository);
 				} catch (GitException ge) {
 					// fetch fails when workspace is empty, run clone
 					newgit.clone(repository);
