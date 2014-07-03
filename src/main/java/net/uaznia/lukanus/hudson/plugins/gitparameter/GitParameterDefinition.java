@@ -10,6 +10,7 @@ import hudson.plugins.git.Revision;
 import hudson.scm.SCM;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.transport.RemoteConfig;
@@ -269,7 +270,7 @@ public class GitParameterDefinition extends ParameterDefinition implements Compa
                                 revisionMap.put(r.getSha1String(), r.getSha1String() + " " + author + " " + goodDate);
                             }
                         } else if(type.equalsIgnoreCase(PARAMETER_TYPE_TAG)) {         
-                            tagMap = new HashMap<String, String>();
+                            tagMap = new TreeMap<String, String>();
                              
                             //Set<String> tagNameList = newgit.getTagNames("*");
                             for(String tagName: newgit.getTagNames("*")) {
