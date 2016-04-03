@@ -1,137 +1,102 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <version>1.532.2</version><!-- which version of Hudson is this plugin built against? -->
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<!-- Baseline Jenkins version you use to build and test the plugin. Users 
+			must have this version or newer to run. -->
+		<version>1.580.2</version>
+	</parent>
 
-  <groupId>org.jenkins-ci.plugins</groupId>
-  <artifactId>git-parameter</artifactId>  
-  <packaging>hpi</packaging>
-  <version>0.3-SNAPSHOT</version>
-  <name>Git Parameter Plug-In</name>
-  <url>https://github.com/lukanus/git-parameter</url>
+	<groupId>org.jenkins-ci.tools</groupId>
+	<artifactId>git-parameter</artifactId>
+	<version>0.5.0</version>
+	<packaging>hpi</packaging>
+	<name>Git Parameter Plug-In</name>
+	<description>Assign git tag or revision number as parameter in Parametrized builds</description>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/Git+Parameter+Plugin</url>
 
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
 
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.0-beta-1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <goals>deploy</goals>
-        </configuration>
-      </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.3.2</version>
-            <configuration>
-                <source>1.6</source>
-                <target>1.6</target>
-            </configuration>
-        </plugin>
-    </plugins>
-  </build>
-  
-  
+	<developers>
+		<developer>
+			<id>klimas7</id>
+			<name>Boguslaw Klimas</name>
+			<email>klimas7@gmail.com</email>
+		</developer>
+		<developer>
+			<id>ngiger</id>
+			<name>Niklaus Giger</name>
+			<email>niklaus.giger@member.fsf.org</email>
+		</developer>
+		<developer>
+			<id>lukanus</id>
+			<name>Lukasz Milkowski</name>
+		</developer>
+	</developers>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
-    <scm>
-    <connection>scm:git:ssh://github.com/lukanus/git-parameter.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/lukanus/git-parameter.git</developerConnection>
-    <url>https://github.com/lukanus/git-parameter</url>
-  </scm>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>credentials</artifactId>
+			<version>1.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>git</artifactId>
+			<version>2.3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.main</groupId>
+			<artifactId>jenkins-core</artifactId>
+			<version>1.580.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.8.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+	</dependencies>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
-  <developers>
-      <developer>
-        <id>lukanus</id>
-        <name>Łukasz Miłkowski</name>
-      </developer>
-  </developers>
-  
+	<scm>
+		<connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
+		<url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
+	</scm>
 
-  <repositories>
-    <repository>
-      <id>jgit-repository</id>
-      <name>Eclipse JGit Repository</name>
-      <url>http://download.eclipse.org/jgit/maven</url>
-    </repository>
-    
-    <repository>
-      <id>guice-maven</id>
-      <name>guice maven</name>
-      <url>http://guice-maven.googlecode.com/svn/trunk</url>
-    </repository>
-    
-    <repository>
-        <id>maven.jenkins-ci.org.git</id>
-        <url>http://maven.jenkins-ci.org/content/repositories/releases/</url>
-    </repository>
-        
-    <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-    </repository>
-    
-  </repositories>
-  
-  <pluginRepositories>
-    <pluginRepository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-    </pluginRepository>
-    <pluginRepository>
-        <id>repo.jenkins-ci.org</id>
-        <url>http://repo.jenkins-ci.org/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  
-    <dependencies>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>git</artifactId>
-            <version>2.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.spearce</groupId>
-            <artifactId>jgit</artifactId>
-            <version>0.4-47e4af3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>1.532.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    
-  <distributionManagement>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
-    </repository>
-  </distributionManagement>
-  
 </project>
